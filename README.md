@@ -1,58 +1,130 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Gows Auto - Premium Showroom & Inventory Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Gows Auto adalah aplikasi web katalog showroom mobil mewah (e-commerce catalog) yang dibangun menggunakan Laravel. Aplikasi ini dirancang dengan antarmuka bertema gelap (Dark UI) yang modern, bersih, dan mewah menggunakan Bootstrap 5 dan gaya custom CSS.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📌 Deskripsi Web
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Gows Auto berfungsi sebagai platform pameran (showroom) kendaraan bermotor mewah. Pengunjung web dapat melihat detail unit mobil yang tersedia, mengecek spesifikasi lengkap, melihat harga serta sisa stok, dan melakukan pembelian langsung yang terintegrasi ke WhatsApp Admin dengan template pesan otomatis yang dinamis.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🛠️ Sistem Manajemen (Admin Dashboard)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Aplikasi dilengkapi dengan panel admin untuk mengelola katalog produk. Fitur-fitur utama di dalamnya meliputi:
+- **Authentication**: Keamanan akses halaman admin menggunakan sistem Login & Logout Laravel.
+- **Product Management (CRUD)**:
+  - **Create**: Menambahkan unit produk baru lengkap dengan judul, deskripsi rinci, harga, stok, dan gambar.
+  - **Read**: Menampilkan daftar produk dalam bentuk tabel admin interaktif dengan pagination. Detail produk dapat dilihat secara utuh melalui halaman *Preview*.
+  - **Update**: Memperbarui informasi produk termasuk mengganti gambar produk yang ada.
+  - **Delete**: Menghapus produk dari database beserta file gambar fisiknya di storage server.
+- **Interactive UI**: Menggunakan SweetAlert2 untuk konfirmasi penghapusan data secara interaktif dan menampilkan notifikasi aksi sukses.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 🔐 Cara Login Admin
 
-## Agentic Development
+Untuk masuk ke halaman dashboard admin:
+1. Akses halaman login melalui url: `/login` atau klik tombol **Admin Panel** pada navigasi atas di landing page.
+2. Gunakan kredensial default bawaan seeder berikut:
+   - **Email / Username**: `test@example.com`
+   - **Password**: `password`
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+---
 
+## 🗄️ Rancangan Database
+
+Database menggunakan **SQLite** (menggunakan file database bernama `laravel` di root project secara default, atau dapat diarahkan ke `database/database.sqlite`).
+
+### 1. Tabel `users` (Data Akun Admin)
+Menyimpan informasi admin yang memiliki otorisasi masuk ke Dashboard.
+
+| Kolom | Tipe Data | Keterangan |
+|---|---|---|
+| `id` | BigInt (PK) | Auto-increment primary key |
+| `name` | String | Nama lengkap user / admin |
+| `email` | String (Unique) | Alamat email (digunakan untuk login) |
+| `email_verified_at` | Timestamp | Waktu konfirmasi email (nullable) |
+| `password` | String | Hash password akun |
+| `remember_token` | String | Token sesi login otomatis (nullable) |
+| `created_at` | Timestamp | Waktu data dibuat (nullable) |
+| `updated_at` | Timestamp | Waktu data diperbarui (nullable) |
+
+### 2. Tabel `products` (Data Katalog Produk)
+Menyimpan data detail unit kendaraan/mobil yang dipajang di katalog.
+
+| Kolom | Tipe Data | Keterangan |
+|---|---|---|
+| `id` | BigInt (PK) | Auto-increment primary key |
+| `image` | String | Nama file gambar produk yang diunggah |
+| `title` | String | Judul atau nama produk / mobil |
+| `description` | Text | Deskripsi spesifikasi dan ulasan detail unit |
+| `price` | BigInt | Harga unit dalam mata uang Rupiah |
+| `stock` | Integer | Jumlah unit stok yang tersedia (default: `0`) |
+| `created_at` | Timestamp | Waktu data dibuat (nullable) |
+| `updated_at` | Timestamp | Waktu data diperbarui (nullable) |
+
+---
+
+## 🚀 Cara Menjalankan Aplikasi di Lokal
+
+Ikuti langkah-langkah di bawah ini untuk menjalankan aplikasi Gows Auto di server lokal Anda:
+
+### 1. Prasyarat (Prerequisites)
+Pastikan server lokal Anda telah terpasang:
+- PHP >= 8.2 (dengan extension PDO SQLite enabled)
+- Composer
+- Node.js & NPM
+
+### 2. Instalasi Dependensi
+Jalankan perintah berikut di terminal untuk memasang library PHP dan Node.js:
 ```bash
-composer require laravel/boost --dev
+# Pasang dependensi PHP (Laravel)
+composer install
 
-php artisan boost:install
+# Pasang dependensi JavaScript
+npm install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 3. Konfigurasi Environment File
+Salin file konfigurasi lingkungan `.env`:
+```bash
+cp .env.example .env
+```
+Secara default aplikasi menggunakan SQLite. Buka file `.env` baru Anda dan pastikan setelan database diarahkan ke SQLite:
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=laravel
+```
+*(Catatan: File database sqlite bernama `laravel` sudah tersedia di folder root project. Jika file belum ada, Anda bisa membuatnya sendiri di root).*
 
-## Contributing
+Lalu generate Application Key Laravel:
+```bash
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 4. Jalankan Migrasi dan Database Seeder
+Jalankan perintah berikut untuk membuat struktur tabel dan mengisi data admin default:
+```bash
+php artisan migrate --seed
+```
 
-## Code of Conduct
+### 5. Jalankan Storage Link
+Buat symlink agar gambar produk yang disimpan di storage server dapat diakses secara publik oleh web browser:
+```bash
+php artisan storage:link
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 6. Jalankan Server Lokal
+Jalankan Laravel development server dan compiler aset frontend:
 
-## Security Vulnerabilities
+```bash
+# Terminal 1: Jalankan Web Server Laravel
+php artisan serve
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Terminal 2: Jalankan Vite compiler aset frontend
+npm run dev
+```
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Buka browser Anda dan akses aplikasi melalui alamat: **`http://127.0.0.1:8000`**.
