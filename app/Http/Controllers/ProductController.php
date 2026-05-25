@@ -3,129 +3,136 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage; // Tambahkan ini untuk hapus gambar lama nanti
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index() : View
+    public function landing()
+    {
+        $products = Product::latest()->get();
+
+        return view('landing.index', compact('products'));
+    }
+
+    public function index()
     {
         $products = Product::latest()->paginate(10);
+
         return view('products.index', compact('products'));
     }
 
-    public function create(): View
+    public function create()
     {
         return view('products.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
-        // 1. Validasi
-        $request->validate([
-            'image'         => 'required|image|mimes:jpeg,jpg,png|max:2048',
-            'title'         => 'required|min:5',
-            'description'   => 'required|min:10',
-            'price'         => 'required|numeric',
-            'stock'         => 'required|numeric'
+        $validated = $request->validate([
+            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string'],
+            'price' => ['required', 'numeric', 'min:0'],
+            'stock' => ['required', 'integer', 'min:0'],
+        ], [
+            'image.required' => 'Gambar produk wajib diisi.',
+            'image.image' => 'File harus berupa gambar.',
+            'image.mimes' => 'Format gambar harus jpg, jpeg, png, atau webp.',
+            'image.max' => 'Ukuran gambar maksimal 2MB.',
+            'title.required' => 'Judul produk wajib diisi.',
+            'description.required' => 'Deskripsi produk wajib diisi.',
+            'price.required' => 'Harga produk wajib diisi.',
+            'price.numeric' => 'Harga harus berupa angka.',
+            'stock.required' => 'Stok produk wajib diisi.',
+            'stock.integer' => 'Stok harus berupa angka bulat.',
         ]);
 
-        // 2. Upload Image ke folder PUBLIC (agar tidak forbidden)
         $image = $request->file('image');
-        // Tambahkan 'public' sebagai parameter kedua
-        $image->storeAs('public/products', $image->hashName());
+        $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
 
-        // 3. Simpan ke Database
+        $image->storeAs('public/products', $imageName);
+
         Product::create([
-            'image'         => $image->hashName(),
-            'title'         => $request->title,
-            'description'   => $request->description,
-            'price'         => $request->price,
-            'stock'         => $request->stock
+            'image' => $imageName,
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'price' => $validated['price'],
+            'stock' => $validated['stock'],
         ]);
 
-        return redirect()->route('products.index')->with(['success' => 'Data Berhasil Disimpan!']);
+        return redirect()
+            ->route('products.index')
+            ->with('success', 'Produk berhasil ditambahkan.');
     }
 
-    public function show(string $id): View
+    public function show(Product $product)
     {
-        $product = Product::findOrFail($id);
         return view('products.show', compact('product'));
     }
 
-    // Method untuk menampilkan form edit
-public function edit(string $id): View
-{
-    $product = Product::findOrFail($id);
-    return view('products.edit', compact('product'));
-}
-
-// Method untuk memproses update data ke database
-public function update(Request $request, $id): RedirectResponse
-{
-    // Validasi data
-    $request->validate([
-        'image'         => 'image|mimes:jpeg,jpg,png|max:2048',
-        'title'         => 'required|min:5',
-        'description'   => 'required|min:10',
-        'price'         => 'required|numeric',
-        'stock'         => 'required|numeric'
-    ]);
-
-    $product = Product::findOrFail($id);
-
-    // Cek jika ada gambar baru yang diupload
-    if ($request->hasFile('image')) {
-
-        // Upload gambar baru
-        $image = $request->file('image');
-        $image->storeAs('public/products', $image->hashName());
-
-        // Hapus gambar lama
-        Storage::delete('public/products/'.$product->image);
-
-        // Update data dengan gambar baru
-        $product->update([
-            'image'         => $image->hashName(),
-            'title'         => $request->title,
-            'description'   => $request->description,
-            'price'         => $request->price,
-            'stock'         => $request->stock
-        ]);
-
-    } else {
-        // Update data tanpa ganti gambar
-        $product->update([
-            'title'         => $request->title,
-            'description'   => $request->description,
-            'price'         => $request->price,
-            'stock'         => $request->stock
-        ]);
-    }
-
-    return redirect()->route('products.index')->with(['success' => 'Data Berhasil Diubah!']);
-}
-
-    public function landing()
+    public function edit(Product $product)
     {
-        $products = Product::latest()->get();
-        return view('landing.index', compact('products'));
+        return view('products.edit', compact('product'));
     }
 
-public function destroy($id): RedirectResponse
-{
-    $product = Product::findOrFail($id);
+    public function update(Request $request, Product $product)
+    {
+        $validated = $request->validate([
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string'],
+            'price' => ['required', 'numeric', 'min:0'],
+            'stock' => ['required', 'integer', 'min:0'],
+        ], [
+            'image.image' => 'File harus berupa gambar.',
+            'image.mimes' => 'Format gambar harus jpg, jpeg, png, atau webp.',
+            'image.max' => 'Ukuran gambar maksimal 2MB.',
+            'title.required' => 'Judul produk wajib diisi.',
+            'description.required' => 'Deskripsi produk wajib diisi.',
+            'price.required' => 'Harga produk wajib diisi.',
+            'price.numeric' => 'Harga harus berupa angka.',
+            'stock.required' => 'Stok produk wajib diisi.',
+            'stock.integer' => 'Stok harus berupa angka bulat.',
+        ]);
 
-    // Hapus file gambar dari storage
-    Storage::delete('public/products/' . $product->image);
+        $data = [
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'price' => $validated['price'],
+            'stock' => $validated['stock'],
+        ];
 
-    // Hapus data dari database
-    $product->delete();
+        if ($request->hasFile('image')) {
+            if ($product->image && Storage::exists('public/products/' . $product->image)) {
+                Storage::delete('public/products/' . $product->image);
+            }
 
-    return redirect()->route('products.index')->with(['success' => 'Data Berhasil Dihapus!']);
-}
+            $image = $request->file('image');
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
 
-    
+            $image->storeAs('public/products', $imageName);
+
+            $data['image'] = $imageName;
+        }
+
+        $product->update($data);
+
+        return redirect()
+            ->route('products.index')
+            ->with('success', 'Produk berhasil diperbarui.');
+    }
+
+    public function destroy(Product $product)
+    {
+        if ($product->image && Storage::exists('public/products/' . $product->image)) {
+            Storage::delete('public/products/' . $product->image);
+        }
+
+        $product->delete();
+
+        return redirect()
+            ->route('products.index')
+            ->with('success', 'Produk berhasil dihapus.');
+    }
 }
