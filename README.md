@@ -10,6 +10,27 @@ Gows Auto berfungsi sebagai platform pameran (showroom) kendaraan bermotor mewah
 
 ---
 
+## 📸 Tampilan Aplikasi (Screenshots)
+
+Berikut adalah beberapa tampilan halaman dari Gows Auto:
+
+### 1. Halaman Login Admin
+![Halaman Login Admin](public/screenshots/login.png)
+
+### 2. Dashboard Daftar Produk
+![Dashboard Daftar Produk](public/screenshots/dashboard.png)
+
+### 3. Konfirmasi Hapus Produk (SweetAlert2)
+![Konfirmasi Hapus](public/screenshots/delete_confirm.png)
+
+### 4. Detail Produk (Halaman Preview)
+![Detail Produk](public/screenshots/detail_product.png)
+
+### 5. Form Edit Produk
+![Edit Produk](public/screenshots/edit_product.png)
+
+---
+
 ## 🛠️ Sistem Manajemen (Admin Dashboard)
 
 Aplikasi dilengkapi dengan panel admin untuk mengelola katalog produk. Fitur-fitur utama di dalamnya meliputi:
@@ -27,8 +48,8 @@ Aplikasi dilengkapi dengan panel admin untuk mengelola katalog produk. Fitur-fit
 
 Untuk masuk ke halaman dashboard admin:
 1. Akses halaman login melalui url: `/login` atau klik tombol **Admin Panel** pada navigasi atas di landing page.
-2. Gunakan kredensial default bawaan seeder berikut:
-   - **Email / Username**: `test@example.com`
+2. Gunakan kredensial default bawaan database seeder berikut:
+   - **Email / Username**: `admin@gowsauto.com`
    - **Password**: `password`
 
 ---
